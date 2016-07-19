@@ -7,12 +7,13 @@ import re
 import urllib.request
 import xlrd
 import configparser
+import requests
 
 config = configparser.ConfigParser()
 config.read('config.txt')
 authorization = config.get('configuration', 'authorization')
 
-
+url = 'https://api-rest.zenvia360.com.br/services/send-sms'
 wb = xlrd.open_workbook('exemplo.xls', encoding_override="cp1252", ragged_rows=True) # enconding_override remove o erro de ausência de condificação em XLS antigos.
 worksheet = wb.sheet_by_index(0)
 n = 1
@@ -30,23 +31,30 @@ while worksheet.cell(n,0).value != xlrd.empty_cell.value: # You can detect an em
     values = """
     {
         "sendSmsRequest": {
-        "from" : "CLIMAE".
-        "to":  %s,
+        "from" : "CLIMAE",
+        "to":  "%s",
         "schedule": "NONE",
-        "msg": %s,
+        "msg": "%s",
         "callBackOption": "NONE",
         "id": "002",
         "aggregateId": "1111"
         }
     }""" % (celularbr, msg)
-
     headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        "Content-Type": "application/json",
+        "Authorization": authorization,
+        "Accept": "application/json"
     }
     values = values.encode('utf-8')
-    request = urllib.request.Request('https://api-rest.zenvia360.com.br/services/send-sms', data=values, headers=headers)
-    response_body = urllib.request.urlopen(request).read()
+#    request = urllib.request.Request("https://api-rest.zenvia360.com.br/services/send-sms", data=values, headers=headers)
+#    response_body = urllib.request.urlopen(request).read()
+    session_requests = requests.session()
+
+    result = session_requests.post(
+        url,
+        data=values,
+        headers=dict(referer=url)
+    )
     n = n + 1
     if n >= worksheet.nrows:
         break
