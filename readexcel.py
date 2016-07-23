@@ -53,7 +53,7 @@ for linha in range(1, worksheet.nrows):
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": 0, ##authorization,
+        "Authorization": authorization,
         "Accept": "application/json"
     }
 
